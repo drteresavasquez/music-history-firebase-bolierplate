@@ -3,14 +3,18 @@
 // It is only concerned with getting and setting data in the db
 
 let $ = require('jquery'),
-    firebase = require("./fb-config");
+  firebase = require("./fb-config");
 
 // ****************************************
 // DB interaction using Firebase REST API
 // ****************************************
 
-function getSongs(user) {
-
+function getSongs() {
+  return $.ajax({
+    url: "https://class-projects-fb145.firebaseio.com/songs.json"
+  }).done((songData) => {
+    return songData;
+  });
 }
 
 function addSong(songFormObj) {
