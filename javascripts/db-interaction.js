@@ -3,7 +3,9 @@
 // It is only concerned with getting and setting data in the db
 
 let $ = require('jquery'),
-  firebase = require("./fb-config");
+  firebase = require("./fb-config"),
+  fbUrl = "https://class-projects-fb145.firebaseio.com/songs";
+
 
 // ****************************************
 // DB interaction using Firebase REST API
@@ -11,14 +13,21 @@ let $ = require('jquery'),
 
 function getSongs() {
   return $.ajax({
-    url: "https://class-projects-fb145.firebaseio.com/songs.json"
+    url: `${fbUrl}.json`
   }).done((songData) => {
     return songData;
   });
 }
 
 function addSong(songFormObj) {
-
+  return $.ajax({
+    url: `${fbUrl}.json`,
+    type: "POST",
+    data: JSON.stringify(songFormObj),
+    dataType: "json"
+  }).done((songID) => {
+    return songID;
+  });
 }
 // POST - Submits data to be processed to a specified resource. Takes one parameter.
 
@@ -27,13 +36,25 @@ function deleteSong(songId) {
 }
 
 function getSong(songId) {
-
+  return $.ajax({
+    url: `${fbUrl}/${songId}.json`,
+  }).done((songData)=>{
+    return songData;
+  }).fail((error)=>{
+    return error;
+  });
 }
 
 // GET - Requests/read data from a specified resource
 // PUT - Update data to a specified resource. Takes two parameters.
 function editSong(songFormObj, songId) {
+  return $.ajax({
+    url: `${fbUrl}/${songId}.json`,
+    type: "PUT",
+    data: JSON.stringify(songFormObj)
+  }).done((data)=>{
 
+  });
 }
 
 module.exports = {

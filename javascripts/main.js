@@ -1,35 +1,57 @@
 "use strict";
 
 let $ = require('jquery'),
-    db = require("./db-interaction"),
-    templates = require("./dom-builder");
-    // login = require("./user");
+  db = require("./db-interaction"),
+  templates = require("./dom-builder");
+// login = require("./user");
 
 
 // Using the REST API
 function loadSongsToDOM() {
-  console.log("Need to load some songs, Buddy");
   db.getSongs()
-  .then((songData)=>{
-    console.log("I got songs!", songData);
-  });
+    .then((songData) => {
+      console.log("I got songs!", songData);
+      var idArray = Object.keys(songData);
+      idArray.forEach((key) => {
+        songData[key].id = key;
+      });
+      templates.makeSongList(songData);
+    });
 }
 
 loadSongsToDOM(); //<--Move to auth section after adding login btn
 
 // Send newSong data to db then reload DOM with updated song data
-$(document).on("click", ".save_new_btn", function() {
-
+$(document).on("click", ".save_new_btn", function () {
+  let songObj = buildSongObj();
+  db.addSong(songObj)
+    .then((songID) => {
+      console.log(songID);
+      loadSongsToDOM();
+    });
 });
 
 // go get the song from database and then populate the form for editing.
 $(document).on("click", ".edit-btn", function () {
-
+  let songID = $(this).data("edit-id");
+  db.getSong(songID)
+    .then((song) => {
+      return templates.songForm(song, songID);
+    })
+    .then((finishedForm) => {
+      $(".uiContainer--wrapper").html(finishedForm);
+    });
 });
 
 //Save edited song to FB then reload DOM with updated song data
-$(document).on("click", ".save_edit_btn", function() {
-
+$(document).on("click", ".save_edit_btn", function () {
+  let songObj = buildSongObj(),
+    songID = $(this).attr("id");
+  console.log("songID", songID);
+  db.editSong(songObj, songID)
+    .then((data) => {
+      loadSongsToDOM();
+    });
 });
 
 // Remove song then reload the DOM w/out new song
@@ -41,7 +63,7 @@ $(document).on("click", ".delete-btn", function () {
 // Helper functions for forms stuff. Nothing related to Firebase
 // Build a song obj from form data.
 function buildSongObj() {
-    let songObj = {
+  let songObj = {
     title: $("#form--title").val(),
     artist: $("#form--artist").val(),
     album: $("#form--album").val(),
@@ -51,21 +73,21 @@ function buildSongObj() {
 }
 
 // Load the new song form
-$("#add-song").click(function() {
+$("#add-song").click(function () {
   console.log("clicked add song");
   var songForm = templates.songForm()
-  .then(function(songForm) {
-    $(".uiContainer--wrapper").html(songForm);
-  });
+    .then((songForm) => {
+      $(".uiContainer--wrapper").html(songForm);
+    });
 });
 
 
-$("#auth-btn").click(function(){
+$("#auth-btn").click(function () {
   console.log("clicked on Signin");
 
 });
 
-$("#logout").click(function(){
+$("#logout").click(function () {
   console.log("logout clicked");
 
 });
